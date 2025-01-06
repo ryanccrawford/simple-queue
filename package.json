@@ -1,0 +1,10 @@
+{
+  "name": "simple-queue",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "mongoose": "^8.9.3",
+    "serialize-error": "^12.0.0"
+  }
+}
