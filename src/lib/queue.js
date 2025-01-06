@@ -4,7 +4,7 @@ const Job = require('../models/job');
 const DeadLetterJob = require('../models/deadLetterJob');
 
 class Queue extends EventEmitter {
-    constructor(dbConnection, options = {}) {
+    constructor(dbConnection, jobProcessor, options = {}) {
         super();
         this.dbConnection = dbConnection;
         this.retryOptions = {
@@ -23,6 +23,7 @@ class Queue extends EventEmitter {
             retrying: 0,
             canceled: 0,
         };
+        this.jobProcessor = jobProcessor;
     }
 
     async _updateJobCounts() {
@@ -42,6 +43,7 @@ class Queue extends EventEmitter {
         });
         this.emit('jobCountsUpdated', this.jobCounts);
     }
+
 
     async enqueue(taskName, data, options = {}) {
         const job = await Job.create({
@@ -114,14 +116,13 @@ class Queue extends EventEmitter {
     }
 
     async _processJob(job) {
-        const handler = this.handlers[job.taskName];
-        if (!handler) {
-            console.error(`No handler found for task: ${job.taskName}`);
+        if (!this.jobProcessor) {
+            console.error(`No job processor found for task: ${job.taskName}`);
             return;
         }
 
         try {
-            await handler(job.data);
+            await this.jobProcessor(job);
             await this._markAsComplete(job._id);
         } catch (error) {
             await this._handleJobFailure(job, error);
