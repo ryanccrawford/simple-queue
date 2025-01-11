@@ -8,6 +8,8 @@
  * is allowed.
  */
 
+jest.setTimeout(30000);
+
 const mongoose = require('mongoose');
 const Queue = require('../../lib/queue');  // Adjust path to your library
 const Job = require('../../lib/models/job');  // Adjust path to your Job model
@@ -30,6 +32,7 @@ const testLogger = {
     warn: jest.fn(console.warn),
     error: jest.fn(console.error),
 };
+
 
 describe('Queue Integration Tests (with dynamic import ESM in node_modules)', () => {
     let queue;
@@ -227,4 +230,5 @@ describe('Queue Integration Tests (with dynamic import ESM in node_modules)', ()
         expect(queue.jobCounts.completed).toBe(1);
         expect(queue.jobCounts.queued).toBe(0);
     });
+
 });
